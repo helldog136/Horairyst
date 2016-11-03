@@ -1,4 +1,4 @@
-from time import *
+from horairyst.time import *
 
 
 class Event(object):

@@ -1,7 +1,18 @@
+import sys
+
 from flask import Flask, request
 
-from parsers import jsonParser, csvParser
-import sys
+from horairyst.parsers import jsonParser
+from horairyst.parsers import csvParser
+from horairyst.problem.problem import Problem
+from horairyst.problem import constraint
+
+import os
+for module in os.listdir("mods"):
+    if module == '__init__.py' or module[-3:] != '.py':
+        continue
+    __import__("mods", locals(), globals(), [module[:-3]])
+del module
 
 
 def check_args(args):
@@ -29,7 +40,12 @@ if __name__ == "__main__":
                 return "hello" + request.args['name']
             else:
                 return "prout"
-        from solvers import scip
-        scip.solve("/home/helldog136/Dropbox/School/MA2/Projet/scip/sampleProblem2.lp")
 
+
+        from horairyst.solvers import scip
+
+        scip.solve("/home/helldog136/Dropbox/School/MA2/Projet/scip/test.lp")
+
+        p = Problem(range(3), range(5), range(10), range(30), range(4), constraint.getConstraints())
+        print(p.write())
         #app.run(port=8080)
