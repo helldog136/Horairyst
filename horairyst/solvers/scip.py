@@ -2,7 +2,8 @@ import subprocess
 
 outfile = "/tmp/horairyst_output"
 
-def run_command(cmd):
+
+def _runCommand(cmd):
     subprocess.getoutput(cmd)
     file = open(outfile, "r")
     res = ""
@@ -11,7 +12,7 @@ def run_command(cmd):
     return res
 
 
-def createBatch(filePath):
+def _createBatch(filePath):
     text  = "read "+filePath+"\n"
     text += "optimize\n"
     text += "write solution "+outfile+"\n"
@@ -24,24 +25,39 @@ def createBatch(filePath):
     return outfile
 
 
-def getSolverOutput(filePath):
-    batchPath = createBatch(filePath)
-    return run_command("./scip -b " + batchPath)
+def _getSolverOutput(filePath):
+    batchPath = _createBatch(filePath)
+    return _runCommand("./scip -b " + batchPath)
 
 
-def extractSolution(output):
+class InfeasibleError(ValueError):
+    pass
+
+
+def _extractSolution(output):
+    print(output)
     lines = output.split("\n")
     res = {}
     res["status"] = lines[0].split(":")[1].strip()
+    if res["status"] == "infeasible":
+        raise InfeasibleError()
     res["value"] = float(lines[1].split(":")[1].strip())
     res["solution"] = []
     for i in range(2,len(lines)-1):
         ln = lines[i].split("\t")[0].split(" ")
         res["solution"].append((ln[0], float(ln[-2])))
-    print(output)
     print("-"*80)
-    print(res)
+    return res
 
 
-def solve(filePath):
-    return extractSolution(getSolverOutput(filePath))
+def solve(problem, filePath = "/tmp/pb.lp"):
+    f = open(filePath, "w")
+    toWrite = problem.write()
+    f.write(toWrite)
+    f.flush()
+    f.close()
+
+    sol = _extractSolution(_getSolverOutput(filePath))
+    problem.setSolution(sol)
+
+    return sol

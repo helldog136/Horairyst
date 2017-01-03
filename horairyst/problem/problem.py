@@ -1,14 +1,16 @@
 class Problem(object):
-    def __init__(self, _S, _P, _E, _R, _C, _constraints):
+    def __init__(self, _S, _P, _E, _R, _C, _strongConstraints, _weakConstraints):
         # if len(_C) != len(_E) or len(_C[0]) != len(_R):
         #    print("wrong size for _C is ", len(_C), "X", len(_C[0]), " but should be ", len(_E), "X", len(_R))
         #    exit(-1)
+        self.sep = "_"
         self.S = _S
         self.P = _P
         self.E = _E
         self.R = _R
         self.C = _C
-        self.constraints = _constraints
+        self.strongConstraints = _strongConstraints
+        self.weakConstraints = _weakConstraints
 
         # init 2 matrix X and Y for decision variables
         self.X = []
@@ -29,25 +31,61 @@ class Problem(object):
             self.Y.append(line2)
 
     def write(self):
-        res = "Minimize\n"
-        binr = "Binary\n"
+        obj = ""
+        binr = ""
         for i in range(len(self.X)):
             for j in range(len(self.X[i])):
                 for k in range(len(self.X[i][j])):
-                    res += self.prettyPrintVar("x", i, j, k) + " + "
+                    obj += self.prettyPrintVar("x", i, j, k) + " + "
                     binr += self.prettyPrintVar("x", i, j, k) + "\n"
         for i in range(len(self.Y)):
             for j in range(len(self.Y[i])):
                 for l in range(len(self.Y[i][j])):
-                    res += self.prettyPrintVar("y", i, j, l)
-                    res += "\n" if (i, j, l) == (len(self.Y) - 1, len(self.Y[i]) - 1, len(self.Y[i][j]) - 1) else " + "
+                    obj += self.prettyPrintVar("y", i, j, l) + " + "
                     binr += self.prettyPrintVar("y", i, j, l) + "\n"
-        res += "Subject To\n"
-        for c in self.constraints.getAll(self):
-            res += str(c) + "" if c[-1] == "\n" else "\n"
+        for c in self.weakConstraints.getAll(self):
+            obj = (obj[:-3] if c[:2] == " -" else obj) + str(c) +\
+                  ("" if len(c) == 0 or c[-2:] == "+ " else " + ")
+        obj = obj[:-2]
 
+        cst = ""
+        for c in self.strongConstraints.getAll(self):
+            cst += str(c) + "" if len(c) == 0 or c[-1] == "\n" else "\n"
+
+        res = "Minimize\n"
+        res += obj
+        res += "\n"
+        res += "Subject To\n"
+        res += cst
+        res += "Binary\n"
         res += binr
+
+
+        print(res)
         return res
 
-    def prettyPrintVar(self, x, i, j, k, sep=":"):
-        return x + sep + str(i) + sep + str(j) + sep + str(k)
+    def prettyPrintVar(self, x, i, j, k):
+        return x + self.sep + str(i) + self.sep + str(j) + self.sep + str(k)
+
+    def setSolution(self, sol):
+        for t in sol["solution"]:
+            self._setSol(t)
+
+    def displaySolution(self):
+        for i in range(len(self.X)):
+            for j in range(len(self.X[i])):
+                for k in range(len(self.X[i][j])):
+                    if self.X[i][j][k] == 1:
+                        print(self.E[k], self.S[i], self.P[j])
+                        for l in range(len(self.Y[i][j])):
+                            if self.Y[i][j][l] == 1:
+                                print(("" if self.C[k][l] == 1 else "#") + self.R[l])
+
+    def _setSol(self, t):
+        tmp = t[0].split(self.sep)
+        if tmp[0] == "x":
+            self.X[int(tmp[1])][int(tmp[2])][int(tmp[3])] = t[1]
+        elif tmp[0] == "y":
+            self.Y[int(tmp[1])][int(tmp[2])][int(tmp[3])] = t[1]
+        else:
+            print("error")
