@@ -1,5 +1,7 @@
 class Problem(object):
-    def __init__(self, _S, _P, _E, _R, _C, _strongConstraints, _weakConstraints):
+
+
+    def __init__(self, _S, _P, _E, _R, _C, _roles, _strongConstraints, _weakConstraints):
         # if len(_C) != len(_E) or len(_C[0]) != len(_R):
         #    print("wrong size for _C is ", len(_C), "X", len(_C[0]), " but should be ", len(_E), "X", len(_R))
         #    exit(-1)
@@ -9,8 +11,15 @@ class Problem(object):
         self.E = _E
         self.R = _R
         self.C = _C
+        self.roles = _roles
         self.strongConstraints = _strongConstraints
         self.weakConstraints = _weakConstraints
+        problemMatrix = []
+        for i in range(len(self.S)):
+            problemMatrix.append([])
+            for j in range(len(self.P)):
+                problemMatrix[i].append((True, []))
+        self.validity = (True, [], [], [], [], problemMatrix)
 
         # init 2 matrix X and Y for decision variables
         self.X = []
@@ -30,6 +39,109 @@ class Problem(object):
             self.X.append(line1)
             self.Y.append(line2)
 
+
+    @classmethod
+    def fromJsonMatrix(cls, data):
+        from horairyst.problem import constraint
+
+        S = data['sessions']
+        P = data['periods']
+        E = []
+        R = []
+        C = []
+        roles = []
+        X = []
+        Y = []
+
+        tmp = []
+
+        doublesE = []
+
+        #TODO populate C and roles and X,Y
+        for j, line in enumerate(data['matrix']):
+            for i, slot in enumerate(line):
+                stud = slot['student']
+                if stud != "":
+                    if stud in E:
+                        tupll = (i, j, stud, [], [])
+                        for teacher in slot['teachers']:
+                            if teacher["role"] == "R":
+                                tupll[3].append(teacher["name"])
+                            else:
+                                tupll[4].append(teacher["name"])
+                            if teacher["name"] not in R:
+                                R.append(teacher["name"])
+                        doublesE.append(tupll)
+                    else:
+                        C.append([])
+                        roles.append([])
+                        E.append(stud)
+                        tupll = (i, j, stud, [], [])
+                        for teacher in slot['teachers']:
+                            if teacher["role"] == "R":
+                                tupll[3].append(teacher["name"])
+                            else:
+                                tupll[4].append(teacher["name"])
+                            if teacher["name"] not in R:
+                                R.append(teacher["name"])
+
+                        tmp.append(tupll)
+                        print(slot, tupll)
+
+        for i in range(len(S)):
+            X.append([])
+            Y.append([])
+            for j in range(len(P)):
+                X[i].append([])
+                Y[i].append([])
+                for k in range(len(E)):
+                    X[i][j].append(0)
+                for l in range(len(R)):
+                    Y[i][j].append(0)
+
+        # init C
+        for k in range(len(C)):
+            for l in range(len(R)):
+                C[k].append(0)
+                roles[k].append("")
+
+        for i, j, k, r, d in tmp:
+            X[i][j][E.index(k)] = 1
+            for rap in r:
+                Y[i][j][R.index(rap)] = 1
+                C[E.index(k)][R.index(rap)] = 1
+                roles[E.index(k)][R.index(rap)] = "R"
+            for dirc in d:
+                Y[i][j][R.index(dirc)] = 1
+                C[E.index(k)][R.index(dirc)] = 1
+                roles[E.index(k)][R.index(dirc)] = "D"
+
+        for i, j, k, r, d in doublesE:
+            X[i][j][E.index(k)] = 1
+            for rap in r:
+                Y[i][j][R.index(rap)] = 1
+                C[E.index(k)][R.index(rap)] = 1
+                roles[E.index(k)][R.index(rap)] = "R"
+            for dirc in d:
+                Y[i][j][R.index(dirc)] = 1
+                C[E.index(k)][R.index(dirc)] = 1
+                roles[E.index(k)][R.index(dirc)] = "D"
+
+
+        print(S, P, E, R, C, roles, X, Y)
+
+        res = cls(S, P, E, R, C, roles, constraint.getStrongConstraints(), constraint.getWeakConstraints())
+
+        res.X = X
+        res.Y = Y
+
+        res.checkValidity()
+
+        print(res.isValid())
+
+
+        return res
+
     def write(self):
         obj = ""
         binr = ""
@@ -38,18 +150,20 @@ class Problem(object):
                 for k in range(len(self.X[i][j])):
                     obj += self.prettyPrintVar("x", i, j, k) + " + "
                     binr += self.prettyPrintVar("x", i, j, k) + "\n"
+
         for i in range(len(self.Y)):
             for j in range(len(self.Y[i])):
                 for l in range(len(self.Y[i][j])):
                     obj += self.prettyPrintVar("y", i, j, l) + " + "
                     binr += self.prettyPrintVar("y", i, j, l) + "\n"
-        for c in self.weakConstraints.getAll(self):
+
+        for c in self.weakConstraints.getConstraints(self):
             obj = (obj[:-3] if c[:2] == " -" else obj) + str(c) +\
                   ("" if len(c) == 0 or c[-2:] == "+ " else " + ")
         obj = obj[:-2]
 
         cst = ""
-        for c in self.strongConstraints.getAll(self):
+        for c in self.strongConstraints.getConstraints(self):
             cst += str(c) + "" if len(c) == 0 or c[-1] == "\n" else "\n"
 
         res = "Minimize\n"
@@ -59,17 +173,81 @@ class Problem(object):
         res += cst
         res += "Binary\n"
         res += binr
+        res += "End"
 
 
         print(res)
         return res
 
-    def prettyPrintVar(self, x, i, j, k):
-        return x + self.sep + str(i) + self.sep + str(j) + self.sep + str(k)
+    def checkValidity(self):
+        validity = self.strongConstraints.checkValidities(self.X, self.Y, self.S, self.P, self.E, self.R, self.C)
+        wrongs_S = []
+        wrongs_P = []
+        wrongs_E = []
+        wrongs_R = []
+        problemMatrix = []
+        for i in range(len(self.S)):
+            problemMatrix.append([])
+            for j in range(len(self.P)):
+                problemMatrix[i].append((True, []))
+        if not validity[0]:
+            for problem in validity[1]:
+                if problem[0] is False:
+                    for w in problem[1]:
+                        if w[0] >= 0:
+                            wrongs_S.append((self.S[w[0]], problem[2], w))
+                        if w[1] >= 0:
+                            wrongs_P.append((self.P[w[1]], problem[2], w))
+                        if w[2] >= 0:
+                            wrongs_E.append((self.E[w[2]], problem[2], w))
+                        if w[3] >= 0:
+                            wrongs_R.append((self.R[w[3]], problem[2], w))
+
+            # TODO synthetize what's wrong
+            def printList(lst):
+                res = ""
+                for i in lst:
+                    res += str(i) + ", "
+                return res
+
+            for v, p, reason in validity[1]:
+                print(v, p, reason)
+                if v is False:
+                    for (i, j, k, l) in p:
+                        if i >= 0 and j >= 0:
+                            problemMatrix[i][j] = (False, problemMatrix[i][j][1])
+                            problemMatrix[i][j][1].append(reason)
+
+            print("Problems in sessions: " + printList(wrongs_S))
+            print("Problems in periods: " + printList(wrongs_P))
+            print("Problems with students: " + printList(wrongs_E))
+            print("Problems with teachers: " + printList(wrongs_R))
+            print(problemMatrix)
+
+        self.validity = (validity[0], wrongs_S, wrongs_P, wrongs_E, wrongs_R, problemMatrix)
+
+
+    def isValid(self):
+        self.checkValidity()
+        return self.validity[0]
+
+    def prettyPrintVar(self, var, i, j, ind):
+        return var + self.sep + str(i) + self.sep + str(j) + self.sep + str(ind)
 
     def setSolution(self, sol):
+        # wipe data in X and Y
+        for i in range(len(self.X)):
+            for j in range(len(self.X[i])):
+                for k in range(len(self.X[i][j])):
+                    self.X[i][j][k] = 0
+        for i in range(len(self.Y)):
+            for j in range(len(self.Y[i])):
+                for l in range(len(self.Y[i][j])):
+                    self.Y[i][j][l] = 0
+
         for t in sol["solution"]:
             self._setSol(t)
+        self.checkValidity()
 
     def displaySolution(self):
         for i in range(len(self.X)):
@@ -79,7 +257,87 @@ class Problem(object):
                         print(self.E[k], self.S[i], self.P[j])
                         for l in range(len(self.Y[i][j])):
                             if self.Y[i][j][l] == 1:
-                                print(("" if self.C[k][l] == 1 else "#") + self.R[l])
+                                if self.C[k][l] == 1:
+                                    print(self.roles[k][l] + ": " +self.R[l])
+                                else:
+                                    #print("#" + self.R[l])
+                                    pass
+
+    def getSolutionAsJson(self):
+        res = {}
+
+        res["slots"] = []
+        for i in range(len(self.X)):
+            for j in range(len(self.X[i])):
+                for k in range(len(self.X[i][j])):
+                    if self.X[i][j][k] == 1:
+                        slot = {"hour": self.P[j],
+                                "room": self.S[i],
+                                "student": self.E[k],
+                                "teachers": [],
+                                "validity": {"value": self.validity[-1][i][j][0],
+                                             "reasons": self.validity[-1][i][j][1]}
+                                }
+                        for l in range(len(self.Y[i][j])):
+                            if self.Y[i][j][l] == 1 and self.C[k][l] == 1:
+                                teacher = {"role": self.roles[k][l], "name": self.R[l]}
+                                slot["teachers"].append(teacher)
+                        res["slots"].append(slot)
+        print(res)
+        return res
+
+    def getCompleteJson(self):
+        return {"matrix": self.getSolutionAsJSONMatrix(),
+                "linear": self.getSolutionAsJson()}
+
+    def getSolutionAsJSONMatrix(self):
+        self.checkValidity()
+        # {"sessions":["0a07", "0a11"],
+        #  "periods":["09h00","09h30","10h00"],
+        #  "matrix": [[{"student":"Alain Terieur",
+        #               "directors":["A. Buys"],
+        #               "reporters":["J. Wijsen"]},
+        #              {"student":"",
+        #               "directors":[],
+        #               "reporters":[]}],
+        #             [{"student":"Alain Terieur",
+        #               "directors":["A. Buys"],
+        #               "reporters":["J. Wijsen"]},
+        #              {"student":"",
+        #               "directors":[],
+        #               "reporters":[]}],
+        #             [{"student":"Alain Terieur",
+        #               "directors":["A. Buys"],
+        #               "reporters":["J. Wijsen"]},
+        #              {"student":"",
+        #               "directors":[],
+        #               "reporters":[]}]
+        #             ]
+        # }
+        #
+        res = {"sessions": [], "periods": [], "matrix": []}
+        for i in self.S:
+            res["sessions"].append(str(i))
+        for j in self.P:
+            res["periods"].append(str(j))
+
+        for j in range(len(self.P)):
+            period = []
+            for i in range(len(self.S)):
+                print(self.validity[-1][i][j][0])
+                slot = {"student": "", "teachers": [], "validity": {"value": self.validity[-1][i][j][0],
+                                                                    "reasons": self.validity[-1][i][j][1]}}
+                for k in range(len(self.E)):
+                    if self.X[i][j][k] == 1:
+                        slot["student"] = self.E[k]
+                        for l in range(len(self.R)):
+                            if self.Y[i][j][l] == 1 and self.C[k][l] == 1:
+                                slot["teachers"].append({"name": self.R[l], "role": self.roles[k][l]})
+                period.append(slot)
+            res["matrix"].append(period)
+        return res
+
+
 
     def _setSol(self, t):
         tmp = t[0].split(self.sep)

@@ -1,76 +1,107 @@
-from horairyst.problem.constraint import weakConstraint, testConstraint, Constraint
+from horairyst.problem.constraint import weakConstraint, testConstraint, Constraint, WeakConstraint
+
+
+# Ajouter des poids sur les contraintes
+
+@weakConstraint
+class MinimizeHoles(WeakConstraint):
+    def getMinValue(self, problem):
+        return 0
+
+    def getMaxValue(self, problem):
+        return 0
+
+    def computeConstraint(self, problem):
+        for i in range(len(problem.S)):
+            for j in range(len(problem.P)):
+                for k in range(len(problem.E)):
+                    self.addTerm(-(j + 1), problem.prettyPrintVar("x", i, j, k))
+        for i in range(len(problem.S)):
+            for j in range(len(problem.P)):
+                for l in range(len(problem.R)):
+                    self.addTerm(-(j + 1), problem.prettyPrintVar("y", i, j, l))
+
+
+def countAttendances(problem, l):
+    x = 0
+    for lst in problem.C:
+        if lst[l] == 1:
+            x += 1
+    return x
 
 
 @weakConstraint
-class MinimizeHoles(Constraint):
-    def getConstraint(self, problem):
-        res = ""
-        for i in range(len(problem.X)):
-            for j in range(len(problem.X[i])):
-                for k in range(len(problem.X[i][j])):
-                    res += " -" + str(j+1) + " " + problem.prettyPrintVar("x", i, j, k)
-        for i in range(len(problem.Y)):
-            for j in range(len(problem.Y[i])):
-                for l in range(len(problem.Y[i][j])):
-                    res += " -" + str(j+1) + " " + problem.prettyPrintVar("y", i, j, l)
-        res += ""
-        return res
+class arriveLatestPossible(WeakConstraint):
+    def getMaxValue(self, problem):
+        return 0
 
-@weakConstraint
-class arriveLatestPossible(Constraint):
-    def getConstraint(self, problem):
-        res = ""
-        for i in range(len(problem.X)):
-            for j in range(len(problem.X[i])):
-                for k in range(len(problem.X[i][j])):
-                    res += " -" + str(j + 1 + (len(problem.C[k]) - self.countOnes(problem.C[k])))\
-                           + " " + problem.prettyPrintVar("x", i, j, k)
-        for i in range(len(problem.Y)):
-            for j in range(len(problem.Y[i])):
-                for l in range(len(problem.Y[i][j])):
-                        res += " -" + str(j + 1 + (len(problem.C[k]) - self.countOnes(problem.C[k])))\
-                               + " " + problem.prettyPrintVar("y", i, j, l)
-        res += ""
-        return res
+    def getMinValue(self, problem):
+        return 0
 
-    def countOnes(self, l):
-        i = 0
-        for n in l :
-            i+=1
-        return i
+    def computeConstraint(self, problem):
+        for i in range(len(problem.S)):
+            for j in range(len(problem.P)):
+                for l in range(len(problem.R)):
+                    for k in range(len(problem.E)):
+                        if problem.C[k][l] == 1:
+                            self.addTerm(-((j + 1) * (len(problem.E) - countAttendances(problem, l))),
+                                         problem.prettyPrintVar("x", i, j, k))
+                            self.addTerm(-((j + 1) * (len(problem.E) - countAttendances(problem, l))),
+                                         problem.prettyPrintVar("y", i, j, l))
 
 
 @weakConstraint
-class minimzeMoving(Constraint):
-    def getConstraint(self, problem):
-        res = ""
-        for i in range(len(problem.X)):
-            for j in range(len(problem.X[i])):
-                for k in range(len(problem.X[i][j])):
-                    res += " -" + str(j + 1 + self.countOnes(problem.C[k]))\
-                           + " " + problem.prettyPrintVar("x", i, j, k)
-        for i in range(len(problem.Y)):
-            for j in range(len(problem.Y[i])):
-                for l in range(len(problem.Y[i][j])):
-                    # for _ in range(j + 1 + self.countOnes(problem.C[l])):
-                        res += " - " + problem.prettyPrintVar("y", i, j, l)
-        res += ""
-        return res
+class minimizeMoving(WeakConstraint): #TODO rework
+    def getMaxValue(self, problem):
+        return 0
 
-    def countOnes(self, l):
-        i = 0
-        for _ in l:
-            i += 1
-        return i
+    def getMinValue(self, problem):
+        return 0
+
+    def computeConstraint(self, problem):
+        for i in range(len(problem.S)):
+            for j in range(len(problem.P)):
+                for l in range(len(problem.R)):
+                    for k in range(len(problem.E)):
+                        if problem.C[k][l] == 1:
+                            self.addTerm(-((j + 1) * (countAttendances(problem, l))),
+                                         problem.prettyPrintVar("x", i, j, k))
+                            self.addTerm(-((j + 1) * (countAttendances(problem, l))),
+                                         problem.prettyPrintVar("y", i, j, l))
 
 
 @weakConstraint
-class leastPossibleSessions(Constraint):
-    def getConstraint(self, problem):
-        res = ""
-        for i in range(len(problem.X)):
-            for j in range(len(problem.X[i])):
-                for k in range(len(problem.X[i][j])):
-                    for _ in range(i+1):
-                        res += problem.prettyPrintVar("x", i, j, k) + " + "
-        return res
+class leastPossibleSessions(WeakConstraint):
+    def getMaxValue(self, problem):
+        return 0
+
+    def getMinValue(self, problem):
+        return 0
+
+    def computeConstraint(self, problem):
+        for i in range(len(problem.S)):
+            for j in range(len(problem.P)):
+                for k in range(len(problem.E)):
+                    self.addTerm(i+1, problem.prettyPrintVar("x", i, j, k))
+                for l in range(len(problem.R)):
+                    self.addTerm(i+1, problem.prettyPrintVar("y", i, j, l))
+
+
+@weakConstraint
+class lrsFirstThenMemoirs(WeakConstraint):
+    def getMaxValue(self, problem):
+        return 0
+
+    def getMinValue(self, problem):
+        return 0
+
+    def computeConstraint(self, problem):
+        for k in range(len(problem.E)):
+            if problem.E[k][0] == "L":  # LRS
+                for i in range(len(problem.S)):
+                    for j in range(len(problem.P)):
+                        self.addTerm(j+1, problem.prettyPrintVar("x", i, j, k))
+            else:
+                for i in range(len(problem.S)):
+                    for j in range(len(problem.P)):
+                        self.addTerm((len(problem.P) - (j + 1)), problem.prettyPrintVar("x", i, j, k))
