@@ -1,6 +1,9 @@
 from horairyst.problem.constraint import strongConstraint, testConstraint, StrongConstraint
-from horairyst.problem.problem import Problem
 
+##########
+# constraint: StudentScheduledOnlyOnce
+# type: strong
+##########
 
 @strongConstraint
 class StudentScheduledOnlyOnce(StrongConstraint):
@@ -8,16 +11,13 @@ class StudentScheduledOnlyOnce(StrongConstraint):
         # sum_ij xijk = 1
         res = []
         for k in range(len(problem.X[0][0])):
-            res.append("")
+            res.append([])
         for i in range(len(problem.X)):
             for j in range(len(problem.X[i])):
                 for k in range(len(problem.X[i][j])):
-                    res[k] += problem.prettyPrintVar("x", i, j, k)
-                    res[k] += (" = 1\n" if (i, j) == (len(problem.X) - 1, len(problem.X[i]) - 1) else " + ")
-        strng = ""
+                    res[k].append((1, problem.prettyPrintVar("x", i, j, k)))
         for i in res:
-            strng += i
-        return strng
+            self.addTerm(i, "=", 1)
 
     def checkValidity(self, X, Y, S, P, E, R, C):
         res = True
@@ -36,19 +36,22 @@ class StudentScheduledOnlyOnce(StrongConstraint):
                     wrongs.append((i, j, k, -1))
         return (res, wrongs)
 
+##########
+##########
+# constraint: DirectorNotInTwoDistinctSessionsAtSameTime
+# type: strong
+##########
 
 @strongConstraint
 class DirectorNotInTwoDistinctSessionsAtSameTime(StrongConstraint):
     def computeConstraint(self, problem):
         # sum_i yijl <= 1
-        res = ""
         for j in range(len(problem.Y[0])):
             for l in range(len(problem.Y[0][0])):
+                tmp = []
                 for i in range(len(problem.Y)):
-                    res += problem.prettyPrintVar("y", i, j, l) + " + "
-                res = res[:-3]
-                res += " <= 1\n"
-        return res
+                    tmp.append((1, problem.prettyPrintVar("y", i, j, l)))
+                self.addTerm(tmp, "<=", 1)
 
     def checkValidity(self, X, Y, S, P, E, R, C):
         res = True
@@ -65,21 +68,24 @@ class DirectorNotInTwoDistinctSessionsAtSameTime(StrongConstraint):
                 if not ctr <= 1:
                     for _i,_j in lst:
                         wrongs.append((_i, _j, -1, l))
-        return (res, wrongs)
+        return res, wrongs
 
+##########
+##########
+# constraint: NoTwoStudentsInSameSlot
+# type: strong
+##########
 
 @strongConstraint
 class NoTwoStudentsInSameSlot(StrongConstraint):
     def computeConstraint(self, problem):
         # sum_k xijk <= 1
-        res = ""
         for i in range(len(problem.X)):
             for j in range(len(problem.X[i])):
+                tmp = []
                 for k in range(len(problem.X[i][j])):
-                    res += problem.prettyPrintVar("x", i, j, k) + " + "
-                res = res[:-3]
-                res += " <= 1\n"
-        return res
+                    tmp.append((1, problem.prettyPrintVar("x", i, j, k)))
+                self.addTerm(tmp, "<=", 1)
 
     def checkValidity(self, X, Y, S, P, E, R, C):
         res = True
@@ -92,23 +98,26 @@ class NoTwoStudentsInSameSlot(StrongConstraint):
                 res = res and ctr <= 1
                 if not ctr <= 1:
                     wrongs.append((i, j, -1, -1))
-        return (res, wrongs)
+        return res, wrongs
 
+##########
+##########
+# constraint: DirectorPresentIOIAssignedToStudent
+# type: strong
+##########
 
 @strongConstraint
 class DirectorPresentIOIAssignedToStudent(StrongConstraint):
     def computeConstraint(self, problem):
         # yijl >= xijk * Ckl --> yijl - xijk >= 0 if Ckl
-        res = ""
         for i in range(len(problem.X)):
             for j in range(len(problem.X[i])):
                 for k in range(len(problem.X[i][j])):
                     for l in range(len(problem.Y[i][j])):
                         if problem.C[k][l] == 1:
-                            res += problem.prettyPrintVar("y", i, j, l)
-                            res += (" - " + problem.prettyPrintVar("x", i, j, k))
-                            res += " >= 0\n"
-        return res
+                            tmp = [(1, problem.prettyPrintVar("y", i, j, l)),
+                                   (-1, problem.prettyPrintVar("x", i, j, k))]
+                            self.addTerm(tmp, ">=", 0)
 
     def checkValidity(self, X, Y, S, P, E, R, C):
         res = True
@@ -121,4 +130,6 @@ class DirectorPresentIOIAssignedToStudent(StrongConstraint):
                             res = res and (Y[i][j][l] - X[i][j][k]) >= 0
                             if not (Y[i][j][l] - X[i][j][k]) >= 0:
                                 wrongs.append((i, j, k, l))
-        return (res, wrongs)
+        return res, wrongs
+
+##########

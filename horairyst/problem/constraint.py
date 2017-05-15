@@ -4,6 +4,11 @@ from abc import ABCMeta, abstractclassmethod
 strongConstraints = None
 weakConstraints = None
 
+def clearConstraints():
+    global strongConstraints
+    global weakConstraints
+    strongConstraints = None
+    weakConstraints = None
 
 def getStrongConstraints():
     global strongConstraints
@@ -79,7 +84,7 @@ class Constraint(metaclass=ABCMeta):
         if self.computedHash != hash(problem):
             self.computedHash = hash(problem)
             self.computeConstraint(problem)
-        cst = self.getConstraint()
+        cst = self.getConstraint(problem)
         if cst is not None:
             ret.append(cst)
         if self.nextConstraint is not None:
@@ -91,7 +96,7 @@ class Constraint(metaclass=ABCMeta):
         """
         used to call a computation of all the coefficients and variables to build the constraint on the specific problem
         :param problem: the problem to build the constraint
-        :return: nothing but self.coefficients, self.variables and eventually self.goals have been updated
+        :return: nothing but the constraint has been updated to match the given problem
         """
         pass
 
@@ -126,14 +131,19 @@ class WeakConstraint(Constraint, metaclass=ABCMeta):
         return 0
 
     def getConstraint(self, problem):
+        def printInt(i):
+            return "+" + ((" " + str(i)) if i != 1 else "") if i >= 0 else "-" + (
+            (" " + str(abs(i))) if i != -1 else "")
         if len(self.coefficients) > 0 and len(self.coefficients) == len(self.variables):
             self.normalize(problem)
             weight = self.getWeight()
             res = ""
-            res += self.coefficients[0] + " " + self.variables[0]
+            res += printInt(self.coefficients[0]) + " " + str(self.variables[0])
+            if res[0] == "+":
+                res = res[2:]
             for i in range(1, len(self.coefficients)):
-                res += (" + " if weight * self.coefficients[i] >= 0 else " ")
-                res += str(weight * self.coefficients[i]) + " " + self.variables[i]
+                res += (printInt(weight * self.coefficients[i]) + " " + str(self.variables[i]) +
+                        " " if weight * self.coefficients[i] != 0 else "")
             return res
         elif len(self.coefficients) != len(self.variables):
             raise ValueError("Coefficients does not have the same size as variables " +
@@ -144,7 +154,7 @@ class WeakConstraint(Constraint, metaclass=ABCMeta):
     def normalize(self, problem):
         minv = self.getMinValue(problem)
         maxv = self.getMaxValue(problem)
-        modifer = lambda x: 0
+        modifer = lambda x: x
         if maxv != minv:
             modifer = lambda x: (x + (0 - minv)) / (maxv - minv)
         for i in range(len(self.coefficients)):
@@ -157,37 +167,34 @@ class WeakConstraint(Constraint, metaclass=ABCMeta):
 class StrongConstraint(Constraint, metaclass=ABCMeta): #TODO unifinished
     def __init__(self):
         super(StrongConstraint, self).__init__()
-        self.coefficients = []
-        self.variables = []
+        self.lhss = []
+        self.results = []
 
-    def addTerm(self, coefficient, variable):
-        self.coefficients.append(coefficient)
-        self.variables.append(variable)
+    def addTerm(self, lhs, sign, rhs):
+        def mergeLhs(l):
+            def printInt(i):
+                return "+" + ((" " + str(i)) if i != 1 else "") if i >= 0 else "-"+((" " + str(abs(i))) if i != -1 else "")
+            res = ""
+            for i in l:
+                res += printInt(i[0]) + " " + i[1] + " "
+            return res[1:-1] if res[0] == "+" else res[:-1]
+        self.lhss.append(mergeLhs(lhs))
+        self.results.append((sign, rhs))
 
     @abstractclassmethod
     def computeConstraint(self, problem):
         pass
 
-    @abstractclassmethod
-    def getMaxValue(self, problem):
-        return 0
-
-    @abstractclassmethod
-    def getMinValue(self, problem):
-        return 0
-
     def getConstraint(self, problem):
-        if len(self.coefficients) > 0 and len(self.coefficients) == len(self.variables):
-            self.normalize(problem)
-            weight = self.getWeight()
+        if len(self.lhss) > 0 and len(self.lhss) == len(self.results):
             res = ""
-            res += self.coefficients[0] + " " + self.variables[0]
-            for i in range(1, len(self.coefficients)):
-                res += " + " + str(weight * self.coefficients[i]) + " " + self.variables[i]
+            res += str(self.lhss[0]) + " " + str(self.results[0][0]) + " " + str(self.results[0][1])
+            for i in range(1, len(self.lhss)):
+                res += "\n" + self.lhss[i] + " " + self.results[i][0] + " " + str(self.results[i][1])
             return res
-        elif len(self.coefficients) != len(self.variables):
-            raise ValueError("Coefficients does not have the same size as variables " +
-                             "(" + str(len(self.coefficients)) + "," + str(len(self.variables)) + ")")
+        elif len(self.lhss) != len(self.results):
+            raise ValueError("Lhss does not have the same size as results " +
+                             "(" + str(len(self.lhss)) + "," + str(len(self.results)) + ")")
         else:
             return ""
 

@@ -39,7 +39,6 @@ class Problem(object):
             self.X.append(line1)
             self.Y.append(line2)
 
-
     @classmethod
     def fromJsonMatrix(cls, data):
         from horairyst.problem import constraint
@@ -164,7 +163,7 @@ class Problem(object):
 
         cst = ""
         for c in self.strongConstraints.getConstraints(self):
-            cst += str(c) + "" if len(c) == 0 or c[-1] == "\n" else "\n"
+            cst += str(c) + ("" if len(c) == 0 or c[-1] == "\n" else "\n")
 
         res = "Minimize\n"
         res += obj

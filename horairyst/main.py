@@ -4,14 +4,20 @@ import horairyst.server.server as server
 from horairyst.parsers import jsonParser
 from horairyst.parsers import csvParser
 from horairyst.parsers import xlsParser
+import horairyst.problem.constraint as constraint
 
 import os
-# Import mods
-for module in os.listdir("mods"):
-    if module == '__init__.py' or module[-3:] != '.py':
-        continue
-    __import__("mods", locals(), globals(), [module[:-3]])
-del module
+
+
+def importMods():
+    #clear old imports
+    constraint.clearConstraints()
+    # Import mods
+    for module in os.listdir("mods"):
+        if module == '__init__.py' or module[-3:] != '.py':
+            continue
+        __import__("mods", locals(), globals(), [module[:-3]])
+    del module
 
 
 def check_args(args): #TODO
@@ -20,6 +26,7 @@ def check_args(args): #TODO
 
 if __name__ == "__main__":
     from horairyst.solvers import scip
+    importMods()
     args = sys.argv
     if(len(args) > 1):
         # console mode

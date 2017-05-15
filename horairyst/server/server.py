@@ -9,8 +9,10 @@ from horairyst.parsers import xlsParser
 from horairyst.solvers import scip
 
 from horairyst.problem.problem import Problem
-from horairyst.problem import constraint
+from horairyst.problem import constraintEditor
+
 import json
+
 
 def server():
     from werkzeug.utils import secure_filename
@@ -92,6 +94,28 @@ def server():
             pb.displaySolution()
             print(pb.getCompleteJson())
             return Response(status=200, response=json.dumps(pb.getCompleteJson()))
+        elif request.method == 'OPTIONS':
+            return Response(status=200)
+        return Response(status=400, response="Wrong method")
+
+    @app.route('/strongconstraints', host="0.0.0.0", methods=['OPTIONS', 'POST', 'GET'])
+    def change_strong_constraints():
+        if request.method == 'POST':
+            constraintEditor.setStrongConstraints(request.get_json())
+            return Response(status=200, response="OK")
+        elif request.method == 'GET':
+            return Response(status=200, response=constraintEditor.getStrongConstraints())
+        elif request.method == 'OPTIONS':
+            return Response(status=200)
+        return Response(status=400, response="Wrong method")
+
+    @app.route('/weakconstraints', host="0.0.0.0", methods=['OPTIONS', 'POST', 'GET'])
+    def change_weak_constraints():
+        if request.method == 'POST':
+            constraintEditor.setWeakConstraints(request.get_json())
+            return Response(status=200, response="OK")
+        elif request.method == 'GET':
+            return Response(status=200, response=constraintEditor.getWeakConstraints())
         elif request.method == 'OPTIONS':
             return Response(status=200)
         return Response(status=400, response="Wrong method")
