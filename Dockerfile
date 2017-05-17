@@ -40,7 +40,6 @@ RUN apt-get update && \
     flex \
     python3-pip \
     git
-RUN pip3 install -r requirements.txt
 RUN rm -rf /var/lib/apt/lists/*
 
 RUN mkdir /root/.ssh/
@@ -55,6 +54,7 @@ RUN ssh-keyscan github.com >> /root/.ssh/known_hosts
 
 RUN git clone git@github.com:helldog136/Horairyst.git /app
 WORKDIR /app
+RUN pip3 install -r requirements.txt
 
 # Install scip
 #RUN cd /home/scip && tar  -zxvf scipoptsuite-3.2.1.tgz
@@ -63,7 +63,7 @@ WORKDIR /app
 #ENV PATH /home/scip/scipoptsuite-3.2.1/scip-3.2.1/bin:$PATH
 
 
-EXPOSE 4242 4242
+EXPOSE 4721 4721
 
 ENTRYPOINT ["python3"]
 CMD ["main.py"]

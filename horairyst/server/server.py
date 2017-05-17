@@ -120,4 +120,4 @@ def server():
             return Response(status=200)
         return Response(status=400, response="Wrong method")
 
-    app.run(port=4242)
+    app.run(port=4721)
