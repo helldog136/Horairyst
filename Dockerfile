@@ -43,8 +43,17 @@ RUN apt-get update && \
 RUN pip3 install -r requirements.txt
 RUN rm -rf /var/lib/apt/lists/*
 
+RUN mkdir /root/.ssh/
 
-RUN git clone https://github.com/helldog136/Horairyst.git /app
+# Copy over private key, and set permissions
+ADD sshKeys/id_rsa2 /root/.ssh/id_rsa
+
+# Create known_hosts
+RUN touch /root/.ssh/known_hosts
+# Add bitbuckets key
+RUN ssh-keyscan github.com >> /root/.ssh/known_hosts
+
+RUN git clone git@github.com:helldog136/Horairyst.git /app
 WORKDIR /app
 
 # Install scip
