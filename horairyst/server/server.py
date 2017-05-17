@@ -31,7 +31,7 @@ def server():
         return '.' in filename and \
                filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-    @app.route('/file', host="0.0.0.0", methods=['POST', 'OPTIONS'])
+    @app.route('/file', methods=['POST', 'OPTIONS'])
     #@cross_origin(origin="http://localhost:3001")
     def upload_file():
         if request.method == 'POST':
@@ -68,7 +68,7 @@ def server():
             return Response(status=200)
         return Response(status=400, response="Wrong method")
 
-    @app.route('/checkMatrix', host="0.0.0.0", methods=['POST', 'OPTIONS'])
+    @app.route('/checkMatrix', methods=['POST', 'OPTIONS'])
     # @cross_origin(origin="http://localhost:3001")
     def check_schedule():
         if request.method == 'POST':
@@ -81,7 +81,7 @@ def server():
             return Response(status=200)
         return Response(status=400, response="Wrong method")
 
-    @app.route('/reoptimize', host="0.0.0.0", methods=['POST', 'OPTIONS'])
+    @app.route('/reoptimize', methods=['POST', 'OPTIONS'])
     # @cross_origin(origin="http://localhost:3001")
     def reoptimize_schedule():
         if request.method == 'POST':
@@ -98,7 +98,7 @@ def server():
             return Response(status=200)
         return Response(status=400, response="Wrong method")
 
-    @app.route('/strongconstraints', host="0.0.0.0", methods=['OPTIONS', 'POST', 'GET'])
+    @app.route('/strongconstraints', methods=['OPTIONS', 'POST', 'GET'])
     def change_strong_constraints():
         if request.method == 'POST':
             constraintEditor.setStrongConstraints(request.get_json())
@@ -109,7 +109,7 @@ def server():
             return Response(status=200)
         return Response(status=400, response="Wrong method")
 
-    @app.route('/weakconstraints', host="0.0.0.0", methods=['OPTIONS', 'POST', 'GET'])
+    @app.route('/weakconstraints', methods=['OPTIONS', 'POST', 'GET'])
     def change_weak_constraints():
         if request.method == 'POST':
             constraintEditor.setWeakConstraints(request.get_json())
@@ -120,4 +120,4 @@ def server():
             return Response(status=200)
         return Response(status=400, response="Wrong method")
 
-    app.run(port=4721)
+    app.run(port=4721, host="0.0.0.0")
