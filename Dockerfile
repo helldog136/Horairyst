@@ -62,7 +62,6 @@ RUN pip3 install -r requirements.txt
 #RUN make SHARED=true scipoptlib
 #ENV PATH /home/scip/scipoptsuite-3.2.1/scip-3.2.1/bin:$PATH
 
-
 EXPOSE 4721 4721
 
 ENTRYPOINT ["python3"]
