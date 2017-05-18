@@ -29,6 +29,11 @@ if __name__ == "__main__":
     # print(constraintEditor.getStrongConstraints())
     # constraintEditor.setStrongConstraints(constraintEditor.getStrongConstraints())
     # exit(0)
+    import time
+    f = open("/tmp/test",'w')
+    f.write(time.time())
+    f.flush()
+    f.close()
     from horairyst.solvers import scip
     importMods()
     args = sys.argv
