@@ -104,7 +104,7 @@ def server():
             constraintEditor.setStrongConstraints(request.get_json())
             return Response(status=200, response="OK")
         elif request.method == 'GET':
-            return Response(status=200, response=constraintEditor.getStrongConstraints())
+            return Response(status=200, response=str(constraintEditor.getStrongConstraints()))
         elif request.method == 'OPTIONS':
             return Response(status=200)
         return Response(status=400, response="Wrong method")
@@ -115,7 +115,7 @@ def server():
             constraintEditor.setWeakConstraints(request.get_json())
             return Response(status=200, response="OK")
         elif request.method == 'GET':
-            return Response(status=200, response=constraintEditor.getWeakConstraints())
+            return Response(status=200, response=str(constraintEditor.getWeakConstraints()))
         elif request.method == 'OPTIONS':
             return Response(status=200)
         return Response(status=400, response="Wrong method")
