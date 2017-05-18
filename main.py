@@ -35,6 +35,7 @@ if __name__ == "__main__":
     f.flush()
     f.close()
     from horairyst.solvers import scip
+    
     importMods()
     args = sys.argv
     if(len(args) > 1):
