@@ -21,7 +21,7 @@ def server():
     ALLOWED_EXTENSIONS = {'txt', 'csv', 'json', 'xls'}
 
     app = Flask(__name__)
-    cors = CORS(app, supports_credentials=True)
+    cors = CORS(app)
     app.config['CORS_HEADERS'] = 'Content-Type'
     app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
@@ -32,7 +32,7 @@ def server():
                filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
     @app.route('/file', methods=['POST', 'OPTIONS'])
-    @cross_origin(origin="http://horairyst.deweireld.be")
+    # @cross_origin(origin="http://horairyst.deweireld.be")
     def upload_file():
         if request.method == 'POST':
             # check if the post request has the file part
@@ -69,7 +69,7 @@ def server():
         return Response(status=400, response="Wrong method")
 
     @app.route('/checkMatrix', methods=['POST', 'OPTIONS'])
-    @cross_origin(origin="http://horairyst.deweireld.be")
+    # @cross_origin(origin="http://horairyst.deweireld.be")
     def check_schedule():
         if request.method == 'POST':
             jsonReq = request.get_json()
@@ -82,7 +82,7 @@ def server():
         return Response(status=400, response="Wrong method")
 
     @app.route('/reoptimize', methods=['POST', 'OPTIONS'])
-    @cross_origin(origin="http://horairyst.deweireld.be")
+    # @cross_origin(origin="http://horairyst.deweireld.be")
     def reoptimize_schedule():
         if request.method == 'POST':
             jsonReq = request.get_json()
@@ -99,7 +99,7 @@ def server():
         return Response(status=400, response="Wrong method")
 
     @app.route('/strongconstraints', methods=['OPTIONS', 'POST', 'GET'])
-    @cross_origin(origin="http://horairyst.deweireld.be")
+    # @cross_origin(origin="http://horairyst.deweireld.be")
     def change_strong_constraints():
         if request.method == 'POST':
             constraintEditor.setStrongConstraints(request.get_json())
@@ -111,7 +111,7 @@ def server():
         return Response(status=400, response="Wrong method")
 
     @app.route('/weakconstraints', methods=['OPTIONS', 'POST', 'GET'])
-    @cross_origin(origin="http://horairyst.deweireld.be")
+    # @cross_origin(origin="http://horairyst.deweireld.be")
     def change_weak_constraints():
         if request.method == 'POST':
             constraintEditor.setWeakConstraints(request.get_json())
