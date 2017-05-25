@@ -122,4 +122,17 @@ def server():
             return Response(status=200)
         return Response(status=400, response="Wrong method")
 
-    app.run(port=4242, host="0.0.0.0")
+    @app.route('/sampleinput', methods=['OPTIONS', 'POST', 'GET'])
+    # @cross_origin(origin="http://horairyst.deweireld.be")
+    def get_sample_input():
+        if request.method == 'GET':
+            file = open("sampleInput.csv", 'r')
+            res = ""
+            for line in file:
+                res += line + "\n"
+            return Response(status=200, response=str(res))
+        elif request.method == 'OPTIONS':
+            return Response(status=200)
+        return Response(status=400, response="Wrong method")
+
+    app.run(port=4242, host="127.0.0.1")
