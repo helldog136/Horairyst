@@ -62,3 +62,6 @@ if __name__ == "__main__":
         # server mode
         print("Starting Horairyst in server mode...")
         server.server()
+
+
+# to launch: daemonize -o /var/log/horairyst_backend.log -e /var/log/horairyst_backend.log -c /horairyst/Horairyst/ /horairyst/Horairyst/main.py
