@@ -108,7 +108,7 @@ class LeastPossibleSessions(WeakConstraint):
         for i in range(len(problem.S)):
             for j in range(len(problem.P)):
                 for k in range(len(problem.E)):
-                    self.addTerm((i+1)*50, problem.prettyPrintVar("x", i, j, k))
+                    self.addTerm(i+1, problem.prettyPrintVar("x", i, j, k))
 
 ##########
 ##########
