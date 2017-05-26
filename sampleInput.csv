@@ -1,8 +1,8 @@
-
-
-
-
-
+IGNORED 1st line after the ignored = sessions
+IGNORED 2nd = periods
+IGNORED then all the lines with a student must be with this model
+IGNORED STUDENT NAME, DIR1, DIR2, DIR3, RAP1, ..., RAPN
+IGNORED Goodbye! :D
 0a07, 0a11
 9h00, 9h30, 10h00, 10h30, 11h00
 Lecture Et Redaction Scientifique
