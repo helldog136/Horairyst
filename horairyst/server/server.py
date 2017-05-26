@@ -129,7 +129,7 @@ def server():
             file = open("sampleInput.csv", 'r')
             res = ""
             for line in file:
-                res += line + "\n"
+                res += line + ("\n" if not line.endswith("\n") else "")
             return Response(status=200, response=str(res))
         elif request.method == 'OPTIONS':
             return Response(status=200)
