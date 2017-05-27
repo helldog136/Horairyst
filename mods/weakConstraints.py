@@ -13,6 +13,9 @@ class MinimizeHoles(WeakConstraint):
     def getMaxValue(self, problem):
         return 0
 
+    def getWeight(self):
+        return 1
+
     def computeConstraint(self, problem):
         for i in range(len(problem.S)):
             for j in range(len(problem.P)):
@@ -45,6 +48,9 @@ class ArriveLatestPossible(WeakConstraint):
 
     def getMinValue(self, problem):
         return 0
+
+    def getWeight(self):
+        return 1
 
     def computeConstraint(self, problem):
         for i in range(len(problem.S)):
@@ -79,6 +85,9 @@ class MinimizeMoving(WeakConstraint): #TODO rework
     def getMinValue(self, problem):
         return 0
 
+    def getWeight(self):
+        return 1
+
     def computeConstraint(self, problem):
         for i in range(len(problem.S)):
             for j in range(len(problem.P)):
@@ -104,6 +113,9 @@ class LeastPossibleSessions(WeakConstraint):
     def getMinValue(self, problem):
         return 0
 
+    def getWeight(self):
+        return 1
+
     def computeConstraint(self, problem):
         for i in range(len(problem.S)):
             for j in range(len(problem.P)):
@@ -123,6 +135,9 @@ class LrsFirstThenMemoirs(WeakConstraint):
 
     def getMinValue(self, problem):
         return 0
+
+    def getWeight(self):
+        return 1
 
     def computeConstraint(self, problem):
         for k in range(len(problem.E)):

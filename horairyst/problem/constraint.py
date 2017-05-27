@@ -160,8 +160,9 @@ class WeakConstraint(Constraint, metaclass=ABCMeta):
         for i in range(len(self.coefficients)):
             self.coefficients[i] = modifer(self.coefficients[i])
 
+    @abstractclassmethod
     def getWeight(self):
-        return 1
+        pass
 
 
 class StrongConstraint(Constraint, metaclass=ABCMeta): #TODO unifinished

@@ -371,7 +371,7 @@ class Problem(object):
                         else:
                             flip = True
                 res += "\t\\hline\n"
-            res += "\\end{tabular}\n"
+            res += "\\end{tabular}\\\\\n"
 
         return res
 
