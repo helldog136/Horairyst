@@ -66,7 +66,7 @@ def server():
                     print(problem.getCompleteJson())
                     return Response(response=json.dumps(problem.getCompleteJson()), status=200)
                 except InfeasibleError:
-                    return Response(status=200, response=json.dumps({}))
+                    return Response(status=418, response=json.dumps({}))
             else:
                 return Response(status=403, response="Wrong file format")
         elif request.method == 'OPTIONS':
