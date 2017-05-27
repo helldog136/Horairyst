@@ -287,7 +287,8 @@ class Problem(object):
 
     def getCompleteJson(self):
         return {"matrix": self.getSolutionAsJSONMatrix(),
-                "linear": self.getSolutionAsJson()}
+                "linear": self.getSolutionAsJson(),
+                "latex": self.getSolutionAsLatex()}
 
     def getSolutionAsJSONMatrix(self):
         self.checkValidity()
@@ -334,6 +335,34 @@ class Problem(object):
                                 slot["teachers"].append({"name": self.R[l], "role": self.roles[k][l]})
                 period.append(slot)
             res["matrix"].append(period)
+        return res
+
+    def getSolutionAsLatex(self):
+        res = ""
+        for i, iN in enumerate(self.S):
+            res += "Session "+iN+"\\\\\n"
+            res += "\\begin{tabular}{|r|l|l|l|}\n"
+            res += "\t\\hline\\\n"
+            for j, slot in enumerate(self.X[i]):
+                res += "\t"+self.P[j]+" & "
+                currentK = -1
+                for k, stud in enumerate(self.E):
+                    if self.X[i][j][k] == 1:
+                        currentK = k
+                        res += stud+" & "
+                dirs = []
+                rapp = []
+                for l, teach in enumerate(self.R):
+                    if self.roles[currentK][l] == 'D':
+                        dirs.append(teach)
+                    elif self.roles[currentK][l] == 'R':
+                        rapp.append(teach)
+                res += dirs[0] + " & " + rapp[0] + "\\\\\n"
+                import itertools
+                for d, r in itertools.zip_longest(dirs, rapp, fillvalue=""):
+                    res += "\t & & " + d + " & " + r + "\\\\\n"
+                res += "\t\\hline\\\n"
+
         return res
 
 
