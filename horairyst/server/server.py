@@ -13,6 +13,8 @@ from horairyst.problem import constraintEditor
 
 import json
 
+from horairyst.solvers.scip import InfeasibleError
+
 
 def server():
     from werkzeug.utils import secure_filename
@@ -58,10 +60,13 @@ def server():
                     print("Unknown file format:", finalfile.split(".")[-1])
                     return Response(status=403, response="Wrong file format")
 
-                scip.solve(problem)
-                problem.displaySolution()
-                print(problem.getCompleteJson())
-                return Response(response=json.dumps(problem.getCompleteJson()), status=200)
+                try:
+                    scip.solve(problem)
+                    problem.displaySolution()
+                    print(problem.getCompleteJson())
+                    return Response(response=json.dumps(problem.getCompleteJson()), status=200)
+                except InfeasibleError:
+                    return Response(status=200, response=json.dumps({}))
             else:
                 return Response(status=403, response="Wrong file format")
         elif request.method == 'OPTIONS':
@@ -90,10 +95,13 @@ def server():
             print(jsonReq['matrix'])
             pb = Problem.fromJsonMatrix(jsonReq)
             print(pb.getCompleteJson())
-            scip.solve(pb)
-            pb.displaySolution()
-            print(pb.getCompleteJson())
-            return Response(status=200, response=json.dumps(pb.getCompleteJson()))
+            try:
+                scip.solve(pb)
+                pb.displaySolution()
+                print(pb.getCompleteJson())
+                return Response(status=200, response=json.dumps(pb.getCompleteJson()))
+            except InfeasibleError:
+                return Response(status=200, response=json.dumps({}))
         elif request.method == 'OPTIONS':
             return Response(status=200)
         return Response(status=400, response="Wrong method")

@@ -43,7 +43,7 @@ def getStrongConstraints():
 
 
 def setStrongConstraints(json):
-    return setConstraintsFromJson("mods/strongConstraints2.py", json)
+    return setConstraintsFromJson("mods/strongConstraints.py", json)
 
 
 def getWeakConstraints():
@@ -51,4 +51,4 @@ def getWeakConstraints():
 
 
 def setWeakConstraints(json):
-    return setConstraintsFromJson("mods/weakConstraints2.py", json)
+    return setConstraintsFromJson("mods/weakConstraints.py", json)
