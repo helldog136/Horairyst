@@ -362,6 +362,7 @@ class Problem(object):
                 for d, r in itertools.zip_longest(dirs, rapp, fillvalue=""):
                     res += "\t & & " + d + " & " + r + "\\\\\n"
                 res += "\t\\hline\\\n"
+            res += "\\end{tabular}\n"
 
         return res
 
