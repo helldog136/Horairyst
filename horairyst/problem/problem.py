@@ -338,11 +338,14 @@ class Problem(object):
         return res
 
     def getSolutionAsLatex(self):
+        import itertools
         res = ""
         for i, iN in enumerate(self.S):
             res += "Session "+iN+"\\\\\n"
             res += "\\begin{tabular}{|r|l|l|l|}\n"
-            res += "\t\\hline\\\n"
+            res += "\t\\hline\\\\\n"
+            res += "\t & Etudiant & Directeur(s) & Rapporteur(s) \\\\\n"
+            res += "\t\\hline\\\\\n"
             for j, slot in enumerate(self.X[i]):
                 res += "\t"+self.P[j]+" & "
                 currentK = -1
@@ -358,14 +361,13 @@ class Problem(object):
                     elif self.roles[currentK][l] == 'R':
                         rapp.append(teach)
                 res += dirs[0] + " & " + rapp[0] + "\\\\\n"
-                import itertools
                 flip = False
                 for d, r in itertools.zip_longest(dirs, rapp, fillvalue=""):
                     if flip:
                         res += "\t & & " + d + " & " + r + "\\\\\n"
                     else:
                         flip = True
-                res += "\t\\hline\\\n"
+                res += "\t\\hline\\\\\n"
             res += "\\end{tabular}\n"
 
         return res
