@@ -359,8 +359,12 @@ class Problem(object):
                         rapp.append(teach)
                 res += dirs[0] + " & " + rapp[0] + "\\\\\n"
                 import itertools
+                flip = False
                 for d, r in itertools.zip_longest(dirs, rapp, fillvalue=""):
-                    res += "\t & & " + d + " & " + r + "\\\\\n"
+                    if flip:
+                        res += "\t & & " + d + " & " + r + "\\\\\n"
+                    else:
+                        flip = True
                 res += "\t\\hline\\\n"
             res += "\\end{tabular}\n"
 
