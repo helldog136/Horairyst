@@ -14,6 +14,7 @@ class Problem(object):
         self.roles = _roles
         self.strongConstraints = _strongConstraints
         self.weakConstraints = _weakConstraints
+        self.value = None
         problemMatrix = []
         for i in range(len(self.S)):
             problemMatrix.append([])
@@ -233,8 +234,7 @@ class Problem(object):
     def prettyPrintVar(self, var, i, j, ind):
         return var + self.sep + str(i) + self.sep + str(j) + self.sep + str(ind)
 
-    def setSolution(self, sol):
-        # wipe data in X and Y
+    def resetSolution(self):
         for i in range(len(self.X)):
             for j in range(len(self.X[i])):
                 for k in range(len(self.X[i][j])):
@@ -244,8 +244,13 @@ class Problem(object):
                 for l in range(len(self.Y[i][j])):
                     self.Y[i][j][l] = 0
 
+    def setSolution(self, sol):
+        # wipe data in X and Y
+        self.resetSolution()
+
         for t in sol["solution"]:
             self._setSol(t)
+        self.value = sol["value"]
         self.checkValidity()
 
     def displaySolution(self):
@@ -286,7 +291,8 @@ class Problem(object):
         return res
 
     def getCompleteJson(self):
-        return {"matrix": self.getSolutionAsJSONMatrix(),
+        return {"value": self.value,
+                "matrix": self.getSolutionAsJSONMatrix(),
                 "linear": self.getSolutionAsJson(),
                 "latex": self.getSolutionAsLatex()}
 
@@ -380,8 +386,8 @@ class Problem(object):
     def _setSol(self, t):
         tmp = t[0].split(self.sep)
         if tmp[0] == "x":
-            self.X[int(tmp[1])][int(tmp[2])][int(tmp[3])] = t[1]
+            self.X[int(tmp[1])][int(tmp[2])][int(tmp[3])] = int(round(float(t[1])))
         elif tmp[0] == "y":
-            self.Y[int(tmp[1])][int(tmp[2])][int(tmp[3])] = t[1]
+            self.Y[int(tmp[1])][int(tmp[2])][int(tmp[3])] = int(round(float(t[1])))
         else:
             print("error")
