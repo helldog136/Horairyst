@@ -86,7 +86,6 @@ class Problem(object):
                                 R.append(teacher["name"])
 
                         tmp.append(tupll)
-                        print(slot, tupll)
 
         for i in range(len(S)):
             X.append([])
@@ -211,7 +210,6 @@ class Problem(object):
                 return res
 
             for v, p, reason in validity[1]:
-                print(v, p, reason)
                 if v is False:
                     for (i, j, k, l) in p:
                         if i >= 0 and j >= 0:
@@ -330,7 +328,6 @@ class Problem(object):
         for j in range(len(self.P)):
             period = []
             for i in range(len(self.S)):
-                print(self.validity[-1][i][j][0])
                 slot = {"student": "", "teachers": [], "validity": {"value": self.validity[-1][i][j][0],
                                                                     "reasons": self.validity[-1][i][j][1]}}
                 for k in range(len(self.E)):
