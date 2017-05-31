@@ -19,7 +19,7 @@ def server():
     from werkzeug.utils import secure_filename
 
     UPLOAD_FOLDER = '/tmp'
-    ALLOWED_EXTENSIONS = {'txt', 'csv', 'json', 'xls'}
+    ALLOWED_EXTENSIONS = {'csv', 'xls'}
 
     app = Flask(__name__)
     cors = CORS(app)
