@@ -70,7 +70,7 @@ class ArriveLatestPossible(WeakConstraint):
 ##########
 
 @weakConstraint
-class MinimizeMoving(WeakConstraint): #TODO rework
+class MinimizeMoving(WeakConstraint):
     @staticmethod
     def countAttendances(problem, l):
         x = 0
@@ -92,12 +92,7 @@ class MinimizeMoving(WeakConstraint): #TODO rework
         for i in range(len(problem.S)):
             for j in range(len(problem.P)):
                 for l in range(len(problem.R)):
-                    for k in range(len(problem.E)):
-                        if problem.C[k][l] == 1:
-                            self.addTerm(-((j + 1) * (self.countAttendances(problem, l))),
-                                         problem.prettyPrintVar("x", i, j, k))
-                            self.addTerm(-((j + 1) * (self.countAttendances(problem, l))),
-                                         problem.prettyPrintVar("y", i, j, l))
+                    self.addTerm(50 * (i+1), problem.prettyPrintVar("y", i, j, l))
 
 ##########
 ##########
