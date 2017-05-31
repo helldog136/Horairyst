@@ -2,7 +2,6 @@ from flask import Flask, request, Response
 from flask_cors import CORS, cross_origin, logging
 
 
-from horairyst.parsers import jsonParser
 from horairyst.parsers import csvParser
 from horairyst.parsers import xlsParser
 
@@ -51,8 +50,6 @@ def server():
                 problem = None
                 if ext in csvParser.getHandledExtensions():
                     problem = csvParser.parse(finalfile)
-                elif ext in jsonParser.getHandledExtensions():
-                    problem = jsonParser.parse(finalfile)
                 elif ext in xlsParser.getHandledExtensions():
                     problem = xlsParser.parse(finalfile)
 
@@ -130,7 +127,7 @@ def server():
             return Response(status=200)
         return Response(status=400, response="Wrong method")
 
-    @app.route('/sampleinput', methods=['OPTIONS', 'POST', 'GET'])
+    @app.route('/sampleinput', methods=['OPTIONS', 'GET'])
     # @cross_origin(origin="http://horairyst.deweireld.be")
     def get_sample_input():
         if request.method == 'GET':
@@ -139,6 +136,17 @@ def server():
             for line in file:
                 res += line + ("\n" if not line.endswith("\n") else "")
             return Response(status=200, response=str(res))
+        elif request.method == 'OPTIONS':
+            return Response(status=200)
+        return Response(status=400, response="Wrong method")
+
+    @app.route('/reloadMods', methods=['GET'])
+    # @cross_origin(origin="http://horairyst.deweireld.be")
+    def reload_mods():
+        if request.method == 'GET':
+            import main
+            main.importMods()
+            return Response(status=200, response="OK")
         elif request.method == 'OPTIONS':
             return Response(status=200)
         return Response(status=400, response="Wrong method")

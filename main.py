@@ -2,7 +2,6 @@
 import sys
 import horairyst.server.server as server
 
-from horairyst.parsers import jsonParser
 from horairyst.parsers import csvParser
 from horairyst.parsers import xlsParser
 import horairyst.problem.constraint as constraint
@@ -42,8 +41,6 @@ if __name__ == "__main__":
         problem = None
         if ext in csvParser.getHandledExtensions():
             problem = csvParser.parse(args[1])
-        elif ext in jsonParser.getHandledExtensions():
-            problem = jsonParser.parse(args[1])
         elif ext in xlsParser.getHandledExtensions():
             problem = xlsParser.parse(args[1])
 
@@ -52,12 +49,11 @@ if __name__ == "__main__":
             sys.exit(-1)
 
         res = scip.solve(problem)
-        problem.displaySolution()
         print(problem.getSolutionAsJSONMatrix())
         print(problem.checkValidity())
-        problem.X[0][2][1] = 1
-        problem.X[0][2][0] = 1
-        print(problem.checkValidity())
+        problem.displaySolution()
+        print("LaTeX Output:")
+        print(problem.getSolutionAsLatex())
     else:
         # server mode
         print("Starting Horairyst in server mode...")
