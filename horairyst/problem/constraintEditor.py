@@ -19,7 +19,7 @@ def getConstraintsFromFile(filename):
                     stepRes["constraint"] = line.split(":")[1].strip()
                     line = file.readline()
                     stepRes["type"] = line.split(":")[1].strip()
-                    line = file.readline()
+                    line = file.readline() # skip the line with ##########
                     stepRes["content"] = ""
                     inCst = True
     return res
@@ -35,6 +35,8 @@ def setConstraintsFromJson(filename, json):
             res += "# type:" + cst["type"] + "\n"
             res += "##########\n"
             res += cst["content"] + "\n"
+            if not res.endswith("##########\n"):
+                res += "##########\n"
         file.write(res)
 
 
@@ -43,7 +45,7 @@ def getStrongConstraints():
 
 
 def setStrongConstraints(json):
-    return setConstraintsFromJson("mods2/strongConstraints.py", json)
+    return setConstraintsFromJson("mods/strongConstraints.py", json)
 
 
 def getWeakConstraints():
@@ -51,4 +53,4 @@ def getWeakConstraints():
 
 
 def setWeakConstraints(json):
-    return setConstraintsFromJson("mods2/weakConstraints.py", json)
+    return setConstraintsFromJson("mods/weakConstraints.py", json)
