@@ -1,8 +1,8 @@
-from horairyst.problem.constraint import weakConstraint, testConstraint, Constraint, WeakConstraint
+from horairyst.problem.constraint import *
 
 ##########
-# constraint: MinimizeHoles
-# type: weak
+# constraint:MinimizeHoles
+# type:weak
 ##########
 
 @weakConstraint
@@ -27,10 +27,11 @@ class MinimizeHoles(WeakConstraint):
                     self.addTerm(-(j + 1), problem.prettyPrintVar("y", i, j, l))
 
 
+
 ##########
 ##########
-# constraint: ArriveLatestPossible
-# type: weak
+# constraint:ArriveLatestPossible
+# type:weak
 ##########
 
 @weakConstraint
@@ -63,10 +64,11 @@ class ArriveLatestPossible(WeakConstraint):
                             self.addTerm(-((j + 1) * (len(problem.E) - self.countAttendances(problem, l))),
                                          problem.prettyPrintVar("y", i, j, l))
 
+
 ##########
 ##########
-# constraint: MinimizeMoving
-# type: weak
+# constraint:MinimizeMoving
+# type:weak
 ##########
 
 @weakConstraint
@@ -92,12 +94,13 @@ class MinimizeMoving(WeakConstraint):
         for i in range(len(problem.S)):
             for j in range(len(problem.P)):
                 for l in range(len(problem.R)):
-                    self.addTerm(50 * (i+1), problem.prettyPrintVar("y", i, j, l))
+                    self.addTerm(10 * (i+1), problem.prettyPrintVar("y", i, j, l))
+
 
 ##########
 ##########
-# constraint: LeastPossibleSessions
-# type: weak
+# constraint:LeastPossibleSessions
+# type:weak
 ##########
 
 @weakConstraint
@@ -117,10 +120,11 @@ class LeastPossibleSessions(WeakConstraint):
                 for k in range(len(problem.E)):
                     self.addTerm(i+1, problem.prettyPrintVar("x", i, j, k))
 
+
 ##########
 ##########
-# constraint: LrsFirstThenMemoirs
-# type: weak
+# constraint:LrsFirstThenMemoirs
+# type:weak
 ##########
 
 @weakConstraint
@@ -144,5 +148,6 @@ class LrsFirstThenMemoirs(WeakConstraint):
                 for i in range(len(problem.S)):
                     for j in range(len(problem.P)):
                         self.addTerm((len(problem.P) - (j + 1)), problem.prettyPrintVar("x", i, j, k))
+
 
 ##########
