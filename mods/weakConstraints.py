@@ -88,7 +88,7 @@ class MinimizeMoving(WeakConstraint):
         return 0
 
     def getWeight(self):
-        return 1
+        return 0.1
 
     def computeConstraint(self, problem):
         for i in range(len(problem.S)):

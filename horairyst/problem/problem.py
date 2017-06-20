@@ -157,12 +157,14 @@ class Problem(object):
                     binr += self.prettyPrintVar("y", i, j, l) + "\n"
 
         for c in self.weakConstraints.getConstraints(self):
+            print("weak\n------\n"+c+"\n---")
             obj = (obj[:-3] if c[:2] == " -" else obj) + str(c) +\
                   ("" if len(c) == 0 or c[-2:] == "+ " else " + ")
         obj = obj[:-2]
 
         cst = ""
         for c in self.strongConstraints.getConstraints(self):
+            print("strong\n------\n" + c + "\n---")
             cst += str(c) + ("" if len(c) == 0 or c[-1] == "\n" else "\n")
 
         res = "Minimize\n"
