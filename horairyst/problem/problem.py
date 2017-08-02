@@ -343,6 +343,12 @@ class Problem(object):
         return res
 
     def getSolutionAsLatex(self):
+        def latex(string):
+            return string.replace("é", "\\'e")\
+                .replace("è", "\\`e")\
+                .replace("ë", "\\\"e")\
+                .replace("à", "\\'a")\
+                .replace("ü", "\\\"u")
         import itertools
         res = """\\documentclass[a4paper,11pt]{article}
 
@@ -364,7 +370,7 @@ class Problem(object):
 
 \\centerline{\\Large\\bf Master en sciences informatiques, \\`a horaire d\\'ecal\\'e \\`a Charleroi}
 
-\\centerline{Samedi 1er juillet 2017}
+\\centerline{TODO}
 \\centerline{Boulevard Joseph II, 38-40, \\`a Charleroi}
 
 \\subsection*{D\\'efenses :  cours de lecture et r\\'edaction scientifiques - m\\'emoires}
@@ -382,11 +388,15 @@ class Problem(object):
             res += "\t & Etudiant & Directeur(s) & Rapporteur(s) \\\\\n"
             res += "\t\\hline\n"
             for j, slot in enumerate(self.X[i]):
+                mod = lambda x: x
                 currentK = -1
                 for k, stud in enumerate(self.E):
                     if self.X[i][j][k] == 1:
                         currentK = k
-                        res += "\t"+self.P[j]+" & "+stud+" & "
+                        if stud[0] == "M":
+                            mod = lambda x: "\\textit{"+x+"}"
+                        stud = stud[2:]
+                        res += "\t"+latex(self.P[j])+" & "+mod(latex(stud))+" & "
                 if currentK == -1: #no programmed student
                     pass#res += " & & \\\\\n"
                 else:
@@ -397,20 +407,20 @@ class Problem(object):
                             dirs.append(teach)
                         elif self.roles[currentK][l] == 'R':
                             rapp.append(teach)
-                    res += dirs[0] + " & " + rapp[0] + "\\\\\n"
+                    res += mod(latex(dirs[0])) + " & " + mod(latex(rapp[0])) + "\\\\\n"
                     flip = False
                     for d, r in itertools.zip_longest(dirs, rapp, fillvalue=""):
                         if flip:
-                            res += "\t & & " + d + " & " + r + "\\\\\n"
+                            res += "\t & & " + mod(latex(d)) + " & " + mod(latex(r)) + "\\\\\n"
                         else:
                             flip = True
                     res += "\t\\hline\n"
             res += "\\end{tabular}\\\\\n"
         res += """\\subsection*{D\\'elib\\'erations et proclamations}
 \\begin{itemize}
-\\item De 12h00 \\`a 12h30, d\\'elib\\'erations pour le cours de lecture et r\\'edaction scientifiques et pour les m\\'emoires
-\\item A partir de 12h30, d\\'elib\\'erations pour le master en sciences informatiques, \\`a horaire d\\'ecal\\'e \\`a Charleroi
-\\item Les proclamations suivront directement (vers 13h00 - 13h30)
+\\item De TODO \\`a TODO, d\\'elib\\'erations pour le cours de lecture et r\\'edaction scientifiques et pour les m\\'emoires
+\\item A partir de TODO, d\\'elib\\'erations pour le master en sciences informatiques, \\`a horaire d\\'ecal\\'e \\`a Charleroi
+\\item Les proclamations suivront directement (vers TODO - TODO)
 \\end{itemize}"""
 
         return res
