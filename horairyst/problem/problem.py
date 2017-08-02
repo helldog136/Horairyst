@@ -344,22 +344,51 @@ class Problem(object):
 
     def getSolutionAsLatex(self):
         import itertools
-        res = ""
+        res = """\\documentclass[a4paper,11pt]{article}
+
+\\usepackage[T1]{fontenc}
+\\usepackage[latin1]{inputenc}
+\\usepackage[english,frenchb]{babel}
+\\usepackage{amsmath}
+\\usepackage{amssymb}
+\\usepackage{graphicx}
+\\usepackage{wrapfig}
+\\usepackage[margin=2cm]{geometry}
+\\usepackage{enumerate}
+\\usepackage{algorithm}
+\\usepackage[noend]{algorithmic}
+\\usepackage{tikz}
+\\usetikzlibrary{shapes,arrows}
+                
+\\begin{document}
+
+\\centerline{\\Large\\bf Master en sciences informatiques, \\`a horaire d\\'ecal\\'e \\`a Charleroi}
+
+\\centerline{Samedi 1er juillet 2017}
+\\centerline{Boulevard Joseph II, 38-40, \\`a Charleroi}
+
+\\subsection*{D\\'efenses :  cours de lecture et r\\'edaction scientifiques - m\\'emoires}
+
+\\begin{itemize}
+\\item Dur\\'ee des pr\\'esentations : 15 minutes  -  Questions : 10 minutes. 
+\\item Mat\\'eriel : PC portable, projecteur data et projecteur de transparents.
+\\item Les d\\'efenses des m\\'emoires sont indiqu\\'ees en italique.
+\\end{itemize}
+"""
         for i, iN in enumerate(self.S):
-            res += "Session "+iN+"\\\\\n"
+            res += "\\bigskip\\noindent Session "+iN+" (Pr\\'esident TODO)\\\\\n"
             res += "\\begin{tabular}{|r|l|l|l|}\n"
             res += "\t\\hline\n"
             res += "\t & Etudiant & Directeur(s) & Rapporteur(s) \\\\\n"
             res += "\t\\hline\n"
             for j, slot in enumerate(self.X[i]):
-                res += "\t"+self.P[j]+" & "
                 currentK = -1
                 for k, stud in enumerate(self.E):
                     if self.X[i][j][k] == 1:
                         currentK = k
-                        res += stud+" & "
+                        res += "\t"+self.P[j]+" & "+stud+" & "
                 if currentK == -1: #no programmed student
-                    res += " & & \\\\\n"
+                    pass#res += " & & \\\\\n"
                 else:
                     dirs = []
                     rapp = []
@@ -375,8 +404,14 @@ class Problem(object):
                             res += "\t & & " + d + " & " + r + "\\\\\n"
                         else:
                             flip = True
-                res += "\t\\hline\n"
+                    res += "\t\\hline\n"
             res += "\\end{tabular}\\\\\n"
+        res += """\\subsection*{D\\'elib\\'erations et proclamations}
+\\begin{itemize}
+\\item De 12h00 \\`a 12h30, d\\'elib\\'erations pour le cours de lecture et r\\'edaction scientifiques et pour les m\\'emoires
+\\item A partir de 12h30, d\\'elib\\'erations pour le master en sciences informatiques, \\`a horaire d\\'ecal\\'e \\`a Charleroi
+\\item Les proclamations suivront directement (vers 13h00 - 13h30)
+\\end{itemize}"""
 
         return res
 
